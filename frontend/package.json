@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "vite --port 3000",
     "build": "tsc -b && vite build",
-    "preview": "vite preview --port 5173"
+    "preview": "vite preview --port 3000"
   },
   "dependencies": {
     "@tanstack/react-query": "5.59.13",

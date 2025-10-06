@@ -24,3 +24,4 @@ contract MarketFactory {
 		return allMarkets.length;
 	}
 }
+

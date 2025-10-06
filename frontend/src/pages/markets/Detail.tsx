@@ -31,28 +31,40 @@ export function MarketDetail() {
 	}
 
 	return (
-		<div style={{ padding: 16, display: 'grid', gap: 12 }}>
-			<h2>{String(question || '')}</h2>
-			<p>Ends: {endTime ? new Date(Number(endTime) * 1000).toLocaleString() : '...'}</p>
-			<p>Yes price: {formatPrice(priceYes)} | No price: {formatPrice(priceNo)}</p>
-			<div style={{ display: 'flex', gap: 8 }}>
-				<input type="number" min="0" step="0.001" value={amount} onChange={(e) => setAmount(e.target.value)} />
-				<button onClick={() => buy('yes')} disabled={isPending}>Buy YES</button>
-				<button onClick={() => buy('no')} disabled={isPending}>Buy NO</button>
+		<div className="grid gap-4">
+			<h2 className="text-xl font-semibold break-words">{String(question || '')}</h2>
+			<p className="text-sm text-gray-600">Ends: {endTime ? new Date(Number(endTime) * 1000).toLocaleString() : '...'}</p>
+			<div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+				<p className="text-sm">Yes price: <span className="font-medium">{formatPrice(priceYes)}</span> | No price: <span className="font-medium">{formatPrice(priceNo)}</span></p>
+				<div className="mt-3 flex flex-wrap items-center gap-2">
+					<input type="number" min="0" step="0.001" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-32 rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500" />
+					<button onClick={() => buy('yes')} disabled={isPending} className="rounded-md bg-emerald-600 px-3 py-2 text-white hover:bg-emerald-700">Buy YES</button>
+					<button onClick={() => buy('no')} disabled={isPending} className="rounded-md bg-rose-600 px-3 py-2 text-white hover:bg-rose-700">Buy NO</button>
+				</div>
 			</div>
-			<div style={{ display: 'flex', gap: 8 }}>
-				<input type="number" min="0" step="0.001" value={sellYesShares} onChange={(e) => setSellYesShares(e.target.value)} />
-				<button onClick={() => sell('yes')} disabled={isPending}>Sell YES</button>
-				<input type="number" min="0" step="0.001" value={sellNoShares} onChange={(e) => setSellNoShares(e.target.value)} />
-				<button onClick={() => sell('no')} disabled={isPending}>Sell NO</button>
+			<div className="grid gap-3 sm:grid-cols-2">
+				<div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+					<p className="mb-2 text-sm font-medium">Sell YES</p>
+					<div className="flex items-center gap-2">
+						<input type="number" min="0" step="0.001" value={sellYesShares} onChange={(e) => setSellYesShares(e.target.value)} className="w-32 rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500" />
+						<button onClick={() => sell('yes')} disabled={isPending} className="rounded-md bg-gray-800 px-3 py-2 text-white hover:bg-black">Sell</button>
+					</div>
+				</div>
+				<div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+					<p className="mb-2 text-sm font-medium">Sell NO</p>
+					<div className="flex items-center gap-2">
+						<input type="number" min="0" step="0.001" value={sellNoShares} onChange={(e) => setSellNoShares(e.target.value)} className="w-32 rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500" />
+						<button onClick={() => sell('no')} disabled={isPending} className="rounded-md bg-gray-800 px-3 py-2 text-white hover:bg-black">Sell</button>
+					</div>
+				</div>
 			</div>
 			{resolved ? (
-				<div>
-					<p>Resolved: {String(yesWins ? 'YES' : 'NO')}</p>
-					<button onClick={redeem} disabled={isPending}>Redeem</button>
+				<div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+					<p>Resolved: <span className="font-medium">{String(yesWins ? 'YES' : 'NO')}</span></p>
+					<button onClick={redeem} disabled={isPending} className="mt-2 rounded-md bg-indigo-600 px-3 py-2 text-white hover:bg-indigo-700">Redeem</button>
 				</div>
 			) : (
-				<p>Market not resolved yet.</p>
+				<p className="text-sm text-gray-600">Market not resolved yet.</p>
 			)}
 		</div>
 	)
@@ -72,3 +84,4 @@ function safeParseInt(x: string) {
 	const n = parseFloat(x)
 	return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0
 }
+

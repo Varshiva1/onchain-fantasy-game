@@ -1,0 +1,10 @@
+{
+  "name": "onchain-fantasy-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "start": "npm run start:backend & npm run start:frontend",
+    "start:frontend": "cd frontend && npm start",
+    "start:backend": "cd backend && npm start"
+  }
+}

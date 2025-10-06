@@ -1,3 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@layer base {
+	html, body, #root { height: 100%; }
+	body {
+		@apply bg-red-100 text-slate-900 antialiased;
+	}
+	a { @apply transition-colors; }
+	input, select, button { @apply outline-none; }
+}
+

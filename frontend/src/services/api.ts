@@ -1,4 +1,4 @@
-const BASE_URL = (import.meta as any).env.VITE_BACKEND_URL || 'http://localhost:8080'
+const BASE_URL = (import.meta as any).env.VITE_BACKEND_URL || 'http://localhost:8000'
 
 export type Contest = {
   id: string
@@ -22,5 +22,6 @@ export const api = {
     return res.json() as Promise<{ contests: Contest[] }>
   },
 }
+
 
 

@@ -25,14 +25,16 @@ export function MarketsList() {
 	})
 
 	return (
-		<div style={{ padding: 16 }}>
-			<h2>Cricket Markets</h2>
-			{!isConnected && <p>Connect a wallet to create and trade.</p>}
-			<Link to="/markets/create">Create Market</Link>
-			<ul>
+		<div className="space-y-4">
+			<div className="flex items-center justify-between">
+				<h2 className="text-xl font-semibold">Cricket Markets</h2>
+				<Link to="/markets/create" className="rounded-md bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700">Create Market</Link>
+			</div>
+			{!isConnected && <p className="text-sm text-gray-500">Connect a wallet to create and trade.</p>}
+			<ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 				{markets.map((m) => (
-					<li key={m}>
-						<Link to={`/markets/${m}`}>{m}</Link>
+					<li key={m} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+						<Link to={`/markets/${m}`} className="text-blue-600 hover:underline break-all">{m}</Link>
 					</li>
 				))}
 			</ul>

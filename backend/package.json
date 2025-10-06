@@ -1,0 +1,8 @@
+{
+  "name": "onchain-fantasy-backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "PORT=8000 cargo run"
+  }
+}
