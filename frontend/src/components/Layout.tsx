@@ -13,7 +13,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 					<nav className="flex items-center gap-2 text-sm">
 						<NavLink to="/" className={({isActive}) => `rounded-full px-4 py-2 ${isActive ? 'bg-white text-slate-900 ring-1 ring-slate-300' : 'text-slate-700 hover:bg-white hover:ring-1 hover:ring-slate-300'}`}>Home</NavLink>
 						<NavLink to="/markets" className={({isActive}) => `rounded-full px-4 py-2 ${isActive ? 'bg-white text-slate-900 ring-1 ring-slate-300' : 'text-slate-700 hover:bg-white hover:ring-1 hover:ring-slate-300'}`}>Markets</NavLink>
-						<NavLink to="/markets/create" className={({isActive}) => `rounded-full px-4 py-2 ${isActive ? 'bg-white text-slate-900 ring-1 ring-slate-300' : 'text-slate-700 hover:bg-white hover:ring-1 hover:ring-slate-300'}`}>Create</NavLink>
+						<NavLink to="/markets/create" className={({isActive}) => `rounded-full px-4 py-2 ${isActive ? 'bg-white text-slate-900 ring-1 ring-slate-300' : 'text-slate-700 hover:bg-white hover:ring-1 hover:ring-slate-300'}`}>Sports</NavLink>
 						<NavLink to="/teams" className={({isActive}) => `rounded-full px-4 py-2 ${isActive ? 'bg-white text-slate-900 ring-1 ring-slate-300' : 'text-slate-700 hover:bg-white hover:ring-1 hover:ring-slate-300'}`}>My Teams</NavLink>
 					</nav>
 					<WalletConnect />
