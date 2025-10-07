@@ -21,7 +21,7 @@ app.use(express.json());
 app.use('/health', healthRoutes);
 app.use('/api/tournaments', tournamentRoutes);
 app.use('/api/contests', contestRoutes);
-
+app.get("/", (req, res) => res.send("Express on Vercel"));
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);
