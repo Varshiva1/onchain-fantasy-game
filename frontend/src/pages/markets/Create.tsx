@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { useAccount, useWriteContract, useReadContract } from 'wagmi'
-import { FACTORY_ADDRESS, FactoryAbi, MarketAbi } from '../../lib/contracts'
+import { useState, useEffect } from 'react'
+import { useAccount } from 'wagmi'
+import { api, type Tournament, type CreateTournamentRequest, type JoinTournamentRequest } from '../../services/api'
 
 const sports = [
 	{ id: 'cricket', name: 'Cricket', icon: '🏏' },
@@ -11,69 +11,108 @@ const sports = [
 	{ id: 'badminton', name: 'Badminton', icon: '🏸' },
 ]
 
-// Mock tournament data - in a real app, this would come from the contract
-const mockTournaments = [
-	{ id: 1, name: 'Cricket World Cup 2024', entryFee: '0.01', prizePool: '0.1', address: '0x1234567890123456789012345678901234567890' },
-	{ id: 2, name: 'Premier League Fantasy', entryFee: '0.02', prizePool: '0.2', address: '0x2345678901234567890123456789012345678901' },
-	{ id: 3, name: 'Tennis Grand Slam', entryFee: '0.005', prizePool: '0.05', address: '0x3456789012345678901234567890123456789012' },
-	{ id: 4, name: 'NBA Championship', entryFee: '0.03', prizePool: '0.3', address: '0x4567890123456789012345678901234567890123' },
-	{ id: 5, name: 'Hockey League', entryFee: '0.015', prizePool: '0.15', address: '0x5678901234567890123456789012345678901234' },
-	{ id: 6, name: 'Badminton Open', entryFee: '0.008', prizePool: '0.08', address: '0x6789012345678901234567890123456789012345' },
-]
 
 export function CreateMarket() {
-	const { isConnected } = useAccount()
-	const { writeContractAsync, isPending } = useWriteContract()
+	const { isConnected, address } = useAccount()
 	const [selectedSport, setSelectedSport] = useState<string>('')
 	const [action, setAction] = useState<'create' | 'join' | null>(null)
 	const [question, setQuestion] = useState('')
 	const [endTime, setEndTime] = useState<string>('')
 	const [liquidity, setLiquidity] = useState<string>('')
 	const [showJoinConfirm, setShowJoinConfirm] = useState(false)
-	const [selectedTournament, setSelectedTournament] = useState<any>(null)
+	const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null)
+	const [tournaments, setTournaments] = useState<Tournament[]>([])
+	const [isLoading, setIsLoading] = useState(false)
+	const [isCreating, setIsCreating] = useState(false)
+
+	// Load tournaments when component mounts or sport changes
+	useEffect(() => {
+		if (action === 'join' && selectedSport) {
+			loadTournaments()
+		}
+	}, [action, selectedSport])
+
+	async function loadTournaments() {
+		setIsLoading(true)
+		try {
+			const response = await api.listTournaments()
+			// Filter tournaments by sport
+			const filteredTournaments = response.tournaments.filter(t => t.sport === selectedSport)
+			setTournaments(filteredTournaments)
+		} catch (error) {
+			console.error('Failed to load tournaments:', error)
+			alert('Failed to load tournaments')
+		} finally {
+			setIsLoading(false)
+		}
+	}
 
 	async function submit(e: React.FormEvent) {
 		e.preventDefault()
-		if (!isConnected) return alert('Connect a wallet')
+		if (!isConnected || !address) return alert('Connect a wallet')
 		if (!endTime) return alert('Pick end time')
-		const endTs = Math.floor(new Date(endTime).getTime() / 1000)
-		const valueWei = BigInt(Math.floor(parseFloat(liquidity) * 1e18))
-		await writeContractAsync({
-			address: FACTORY_ADDRESS,
-			abi: FactoryAbi as any,
-			functionName: 'createMarket',
-			args: [question, BigInt(endTs)],
-			value: valueWei,
-		})
-		alert('Market transaction sent')
+		if (!question) return alert('Enter tournament name')
+		if (!liquidity) return alert('Enter entry fee')
+
+		setIsCreating(true)
+		try {
+			const tournamentData: CreateTournamentRequest = {
+				name: question,
+				sport: selectedSport,
+				entry_fee: liquidity,
+				prize_pool: liquidity, // For now, same as entry fee
+				end_time: new Date(endTime).toISOString(),
+				creator_address: address,
+			}
+
+			const response = await api.createTournament(tournamentData)
+			
+			if (response.success) {
+				alert('Tournament created successfully!')
+				// Reset form
+				setQuestion('')
+				setEndTime('')
+				setLiquidity('')
+				// Reload tournaments
+				loadTournaments()
+			} else {
+				alert(`Failed to create tournament: ${response.error || 'Unknown error'}`)
+			}
+		} catch (error) {
+			console.error('Error creating tournament:', error)
+			alert('Failed to create tournament')
+		} finally {
+			setIsCreating(false)
+		}
 	}
 
-	async function joinTournament(tournament: any) {
-		if (!isConnected) return alert('Connect a wallet')
+	async function joinTournament(tournament: Tournament) {
+		if (!isConnected || !address) return alert('Connect a wallet')
 		
 		setSelectedTournament(tournament)
 		setShowJoinConfirm(true)
 	}
 
 	async function confirmJoin() {
-		if (!selectedTournament) return
+		if (!selectedTournament || !address) return
 		
 		try {
-			const valueWei = BigInt(Math.floor(parseFloat(selectedTournament.entryFee) * 1e18))
+			const joinData: JoinTournamentRequest = {
+				user_address: address,
+				amount: selectedTournament.entry_fee,
+			}
+
+			const response = await api.joinTournament(selectedTournament.tournament_id, joinData)
 			
-			// For now, we'll use buyYes as the join mechanism
-			// In a real implementation, you'd have a specific join function
-			await writeContractAsync({
-				address: selectedTournament.address as `0x${string}`,
-				abi: MarketAbi as any,
-				functionName: 'buyYes',
-				args: [],
-				value: valueWei,
-			})
-			
-			alert('Successfully joined tournament!')
-			setShowJoinConfirm(false)
-			setSelectedTournament(null)
+			if (response.success) {
+				alert('Successfully joined tournament!')
+				setShowJoinConfirm(false)
+				setSelectedTournament(null)
+				// Reload tournaments to update participant count
+				loadTournaments()
+			} else {
+				alert(`Failed to join tournament: ${response.message}`)
+			}
 		} catch (error) {
 			console.error('Error joining tournament:', error)
 			alert('Failed to join tournament. Please try again.')
@@ -165,26 +204,41 @@ export function CreateMarket() {
 						<input type="number" min="0" step="0.001" className="rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-slate-600" value={liquidity} onChange={(e) => setLiquidity(e.target.value)} />
 					</label>
 					<div className="col-span-full mt-2 flex items-center gap-3">
-						<button type="submit" className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-black" disabled={isPending}>Create Tournament</button>
-						<span className="text-xs text-slate-700/90">You'll confirm in your wallet.</span>
+						<button type="submit" className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-black" disabled={isCreating}>
+							{isCreating ? 'Creating...' : 'Create Tournament'}
+						</button>
+						<span className="text-xs text-slate-700/90">Tournament will be created on blockchain.</span>
 					</div>
 				</form>
 			) : (
 				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-					{mockTournaments.map((tournament) => (
-						<div key={tournament.id} className="rounded-xl border border-slate-300 bg-white p-4 shadow-sm">
-							<h3 className="font-semibold text-slate-900">{tournament.name}</h3>
-							<p className="text-sm text-slate-600">Entry: {tournament.entryFee} ETH</p>
-							<p className="text-sm text-slate-600">Prize: {tournament.prizePool} ETH</p>
-							<button 
-								onClick={() => joinTournament(tournament)}
-								className="mt-3 w-full rounded-lg bg-slate-900 px-3 py-2 text-sm text-white hover:bg-black"
-								disabled={isPending}
-							>
-								{isPending ? 'Processing...' : 'Join'}
-							</button>
+					{isLoading ? (
+						<div className="col-span-full text-center py-8">
+							<p className="text-slate-600">Loading tournaments...</p>
 						</div>
-					))}
+					) : tournaments.length === 0 ? (
+						<div className="col-span-full text-center py-8">
+							<p className="text-slate-600">No tournaments available for {sports.find(s => s.id === selectedSport)?.name}</p>
+						</div>
+					) : (
+						tournaments.map((tournament) => (
+							<div key={tournament.tournament_id} className="rounded-xl border border-slate-300 bg-white p-4 shadow-sm">
+								<h3 className="font-semibold text-slate-900">{tournament.name}</h3>
+								<p className="text-sm text-slate-600">Entry: {tournament.entry_fee} ETH</p>
+								<p className="text-sm text-slate-600">Prize: {tournament.prize_pool} ETH</p>
+								<p className="text-sm text-slate-600">Participants: {tournament.participants}/{tournament.max_participants}</p>
+								<p className="text-sm text-slate-600">Status: {tournament.status}</p>
+								<button 
+									onClick={() => joinTournament(tournament)}
+									className="mt-3 w-full rounded-lg bg-slate-900 px-3 py-2 text-sm text-white hover:bg-black"
+									disabled={tournament.status !== 'Active' || tournament.participants >= tournament.max_participants}
+								>
+									{tournament.status !== 'Active' ? 'Inactive' : 
+									 tournament.participants >= tournament.max_participants ? 'Full' : 'Join'}
+								</button>
+							</div>
+						))
+					)}
 				</div>
 			)}
 		</div>
@@ -198,15 +252,15 @@ export function CreateMarket() {
 						Do you want to join the tournament <strong>"{selectedTournament.name}"</strong>?
 					</p>
 					<p className="text-sm text-slate-600 mb-4">
-						Entry fee: <strong>{selectedTournament.entryFee} ETH</strong>
+						Entry fee: <strong>{selectedTournament.entry_fee} ETH</strong>
 					</p>
 					<div className="flex gap-3">
 						<button
 							onClick={confirmJoin}
 							className="flex-1 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-black"
-							disabled={isPending}
+							disabled={isCreating}
 						>
-							{isPending ? 'Processing...' : 'Yes, Join'}
+							{isCreating ? 'Processing...' : 'Yes, Join'}
 						</button>
 						<button
 							onClick={() => {
@@ -214,7 +268,7 @@ export function CreateMarket() {
 								setSelectedTournament(null)
 							}}
 							className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-							disabled={isPending}
+							disabled={isCreating}
 						>
 							Cancel
 						</button>

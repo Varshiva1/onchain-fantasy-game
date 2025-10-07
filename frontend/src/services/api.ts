@@ -1,4 +1,4 @@
-const BASE_URL = (import.meta as any).env.VITE_BACKEND_URL || 'http://localhost:8000'
+const BASE_URL = (import.meta as any).env.VITE_BACKEND_URL || 'http://localhost:8080'
 
 export type Contest = {
   id: string
@@ -8,18 +8,86 @@ export type Contest = {
   prize_pool: number
 }
 
+export type Tournament = {
+  tournament_id: string
+  name: string
+  sport: string
+  entry_fee: string
+  prize_pool: string
+  status: string
+  participants: number
+  max_participants: number
+  contract_address: string
+  creator_address: string
+  end_time: string
+  created_at: string
+}
+
+export type CreateTournamentRequest = {
+  name: string
+  sport: string
+  entry_fee: string
+  prize_pool: string
+  end_time: string
+  creator_address: string
+}
+
+export type JoinTournamentRequest = {
+  user_address: string
+  amount: string
+}
+
 export const api = {
   async health() {
     const res = await fetch(`${BASE_URL}/health`)
-    return res.json() as Promise<{ status: string }>
+    return res.json() as Promise<{ status: string; timestamp: string; service: string }>
   },
+  
   async listSports() {
-    const res = await fetch(`${BASE_URL}/sports`)
-    return res.json() as Promise<{ sports: { id: string; name: string }[] }>
+    const res = await fetch(`${BASE_URL}/api/sports`)
+    return res.json() as Promise<{ sports: { sport_id: string; name: string; icon: string }[] }>
   },
+  
   async listContests(sport: string) {
-    const res = await fetch(`${BASE_URL}/contests?sport=${encodeURIComponent(sport)}`)
+    const res = await fetch(`${BASE_URL}/api/contests?sport=${encodeURIComponent(sport)}`)
     return res.json() as Promise<{ contests: Contest[] }>
+  },
+  
+  async listTournaments() {
+    const res = await fetch(`${BASE_URL}/api/tournaments`)
+    return res.json() as Promise<{ tournaments: Tournament[] }>
+  },
+  
+  async getTournament(id: string) {
+    const res = await fetch(`${BASE_URL}/api/tournaments/${id}`)
+    return res.json() as Promise<{ tournament: Tournament } | { error: string }>
+  },
+  
+  async createTournament(data: CreateTournamentRequest) {
+    const res = await fetch(`${BASE_URL}/api/tournaments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    return res.json() as Promise<{ success: boolean; tournament?: Tournament; message?: string; error?: string }>
+  },
+  
+  async joinTournament(id: string, data: JoinTournamentRequest) {
+    const res = await fetch(`${BASE_URL}/api/tournaments/${id}/join`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    return res.json() as Promise<{ success: boolean; message: string; tournament?: Tournament; transaction_hash?: string }>
+  },
+  
+  async getTournamentParticipants(id: string) {
+    const res = await fetch(`${BASE_URL}/api/tournaments/${id}/participants`)
+    return res.json() as Promise<{ participants: any[] }>
   },
 }
 

@@ -1,0 +1,14 @@
+/Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/deps/serde-b7c839dace15360f.d: /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/build/serde-35ba4472f2ee923c/out/private.rs
+
+/Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/deps/libserde-b7c839dace15360f.rlib: /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/build/serde-35ba4472f2ee923c/out/private.rs
+
+/Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/deps/libserde-b7c839dace15360f.rmeta: /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/build/serde-35ba4472f2ee923c/out/private.rs
+
+/Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs:
+/Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs:
+/Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs:
+/Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs:
+/Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs:
+/Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/build/serde-35ba4472f2ee923c/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/build/serde-35ba4472f2ee923c/out

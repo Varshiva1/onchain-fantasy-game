@@ -1,0 +1,14 @@
+/Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/deps/thiserror-76ff1136c23faf44.d: /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/lib.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/aserror.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/display.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/var.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/private.rs /Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/build/thiserror-ae79b1276ad3197f/out/private.rs
+
+/Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/deps/libthiserror-76ff1136c23faf44.rlib: /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/lib.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/aserror.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/display.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/var.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/private.rs /Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/build/thiserror-ae79b1276ad3197f/out/private.rs
+
+/Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/deps/libthiserror-76ff1136c23faf44.rmeta: /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/lib.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/aserror.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/display.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/var.rs /Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/private.rs /Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/build/thiserror-ae79b1276ad3197f/out/private.rs
+
+/Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/lib.rs:
+/Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/aserror.rs:
+/Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/display.rs:
+/Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/var.rs:
+/Users/warshiva/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.17/src/private.rs:
+/Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/build/thiserror-ae79b1276ad3197f/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/warshiva/Documents/GitHub/onchain-fantasy-game/backend/target/debug/build/thiserror-ae79b1276ad3197f/out
