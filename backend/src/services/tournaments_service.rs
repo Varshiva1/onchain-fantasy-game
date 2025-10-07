@@ -30,9 +30,15 @@ pub async fn create(db: &DatabaseManager, payload: CreateTournamentRequest) -> R
         sport: payload.sport,
         entry_fee: payload.entry_fee,
         prize_pool: payload.prize_pool,
-        status: TournamentStatus::Active,
-        participants: 0,
-        max_participants: 100,
+        status: match payload.status.as_deref() {
+            Some("Active") | None => TournamentStatus::Active,
+            Some("Inactive") => TournamentStatus::Inactive,
+            Some("Completed") => TournamentStatus::Completed,
+            Some("Cancelled") => TournamentStatus::Cancelled,
+            _ => TournamentStatus::Active,
+        },
+        participants: payload.participants.unwrap_or(0),
+        max_participants: payload.max_participants.unwrap_or(100),
         contract_address: "0x0000000000000000000000000000000000000000".to_string(),
         creator_address: payload.creator_address,
         end_time: payload.end_time,
@@ -49,7 +55,13 @@ pub async fn join(db: &DatabaseManager, tournament_id: &str, payload: JoinTourna
     if let Some(mut t) = col_t.find_one(filter.clone(), None).await? {
         t.participants += 1;
         t.updated_at = Utc::now();
-        let upd = doc!{"$set": {"participants": t.participants, "updated_at": t.updated_at}};
+        // If capacity reached, set status to Inactive automatically
+        let mut set_doc = doc!{
+            "participants": t.participants,
+            "updated_at": t.updated_at,
+        };
+        if t.participants >= t.max_participants { set_doc.insert("status", "Inactive"); }
+        let upd = doc!{"$set": set_doc};
         col_t.update_one(filter, upd, None).await?;
 
         let part = Participant { id: None, tournament_id: tournament_id.to_string(), user_address: payload.user_address, amount_paid: payload.amount, transaction_hash: format!("0x{}", hex::encode(&[0u8; 32])), joined_at: Utc::now() };

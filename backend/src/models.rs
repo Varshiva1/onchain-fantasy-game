@@ -80,6 +80,9 @@ pub struct CreateTournamentRequest {
     pub prize_pool: String,
     pub end_time: DateTime<Utc>,
     pub creator_address: String,
+    pub status: Option<String>,
+    pub participants: Option<u32>,
+    pub max_participants: Option<u32>,
 }
 
 #[derive(Debug, Deserialize)]

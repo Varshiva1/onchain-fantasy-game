@@ -30,6 +30,9 @@ export type CreateTournamentRequest = {
   prize_pool: string
   end_time: string
   creator_address: string
+  status?: string
+  participants?: number
+  max_participants?: number
 }
 
 export type JoinTournamentRequest = {
@@ -53,8 +56,9 @@ export const api = {
     return res.json() as Promise<{ contests: Contest[] }>
   },
   
-  async listTournaments() {
-    const res = await fetch(`${BASE_URL}/api/tournaments`)
+  async listTournaments(sport?: string) {
+    const url = sport ? `${BASE_URL}/api/tournaments?sport=${encodeURIComponent(sport)}` : `${BASE_URL}/api/tournaments`
+    const res = await fetch(url)
     return res.json() as Promise<{ tournaments: Tournament[] }>
   },
   

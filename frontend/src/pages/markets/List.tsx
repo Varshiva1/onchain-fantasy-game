@@ -1,43 +1,54 @@
-import { Link } from 'react-router-dom'
-import { useAccount, useWatchContractEvent } from 'wagmi'
-import { FACTORY_ADDRESS, FactoryAbi } from '../../lib/contracts'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { api, type Tournament } from '../../services/api'
+
+const sports = ['cricket', 'football', 'tennis', 'basketball', 'hockey', 'badminton']
 
 export function MarketsList() {
-	const { isConnected } = useAccount()
-	const [markets, setMarkets] = useState<string[]>([])
-
-	useEffect(() => {
-		// Could hydrate from an indexer; this demo builds from events while mounted.
-	}, [])
-
-	useWatchContractEvent({
-		address: FACTORY_ADDRESS,
-		abi: FactoryAbi as any,
-		eventName: 'MarketCreated',
-		onLogs(logs) {
-			for (const log of logs) {
-				// @ts-ignore
-				const m = log.args.market as string
-				setMarkets((prev) => (prev.includes(m) ? prev : [m, ...prev]))
-			}
-		},
-	})
+    const [params] = useSearchParams()
+    const initial = params.get('sport') || 'cricket'
+    const [selectedSport, setSelectedSport] = useState<string>(initial)
+    const { data, isLoading, error } = useQuery<{ tournaments: Tournament[] }>({
+        queryKey: ['tournaments', selectedSport],
+        queryFn: () => api.listTournaments(selectedSport),
+    })
 
 	return (
 		<div className="space-y-4">
-			<div className="flex items-center justify-between">
-				<h2 className="text-xl font-semibold">Cricket Markets</h2>
-				<Link to="/markets/create" className="rounded-md bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700">Create Market</Link>
-			</div>
-			{!isConnected && <p className="text-sm text-gray-500">Connect a wallet to create and trade.</p>}
-			<ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-				{markets.map((m) => (
-					<li key={m} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-						<Link to={`/markets/${m}`} className="text-blue-600 hover:underline break-all">{m}</Link>
-					</li>
-				))}
-			</ul>
+            <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Markets</h2>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+                {sports.map((s) => (
+                    <button
+                        key={s}
+                        onClick={() => setSelectedSport(s)}
+                        className={`rounded-full px-4 py-2 text-sm font-medium border transition-colors ${
+                            selectedSport === s
+                                ? 'bg-indigo-600 text-white border-indigo-600'
+                                : 'bg-white text-slate-700 border-slate-300 hover:bg-indigo-50 hover:border-indigo-300'
+                        }`}
+                    >
+                        {s.charAt(0).toUpperCase() + s.slice(1)}
+                    </button>
+                ))}
+            </div>
+            {isLoading && <p className="text-sm text-gray-500">Loading tournaments…</p>}
+            {error && <p className="text-sm text-red-600">Failed to load tournaments</p>}
+            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {data?.tournaments?.filter(t => t.status === 'Active').map((t) => (
+                    <li key={t.tournament_id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                        <div className="flex items-center justify-between">
+                            <strong className="text-gray-900">{t.name}</strong>
+                            <span className="text-xs text-gray-500">{t.participants}/{t.max_participants}</span>
+                        </div>
+                        <div className="mt-2 text-sm text-gray-700">Entry: {t.entry_fee} ETH</div>
+                        <div className="text-sm text-gray-700">Prize: {t.prize_pool} ETH</div>
+                    </li>
+                ))}
+            </ul>
 		</div>
 	)
 }
