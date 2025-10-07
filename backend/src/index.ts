@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { tournamentRoutes } from './routes/tournaments';
-import { contestRoutes } from './routes/contests';
+// import { contestRoutes } from './routes/contests';
 import { healthRoutes } from './routes/health';
 
 dotenv.config();
@@ -20,7 +20,7 @@ app.use(express.json());
 // Routes
 app.use('/health', healthRoutes);
 app.use('/api/tournaments', tournamentRoutes);
-app.use('/api/contests', contestRoutes);
+// app.use('/api/contests', contestRoutes);
 app.get("/", (req, res) => res.send("Express on Vercel"));
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
