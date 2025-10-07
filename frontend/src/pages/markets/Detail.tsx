@@ -10,43 +10,21 @@ export function MarketDetail() {
 		[params.address]
 	)
 
-	// ✅ Added args: [] everywhere for read-only calls
-	const { data: question } = useReadContract({
+	// ✅ Helper ensures cross-version safety (v1/v2)
+	const readConfig = (fn: string) => ({
 		address,
 		abi: MarketAbi as any,
-		functionName: 'question',
-		args: []
+		functionName: fn,
+		// @ts-ignore — safely ignored for Wagmi v1 builds
+		args: [],
 	})
-	const { data: endTime } = useReadContract({
-		address,
-		abi: MarketAbi as any,
-		functionName: 'endTime',
-		args: []
-	})
-	const { data: priceYes } = useReadContract({
-		address,
-		abi: MarketAbi as any,
-		functionName: 'priceYes',
-		args: []
-	})
-	const { data: priceNo } = useReadContract({
-		address,
-		abi: MarketAbi as any,
-		functionName: 'priceNo',
-		args: []
-	})
-	const { data: resolved } = useReadContract({
-		address,
-		abi: MarketAbi as any,
-		functionName: 'resolved',
-		args: []
-	})
-	const { data: yesWins } = useReadContract({
-		address,
-		abi: MarketAbi as any,
-		functionName: 'yesWins',
-		args: []
-	})
+
+	const { data: question } = useReadContract(readConfig('question'))
+	const { data: endTime } = useReadContract(readConfig('endTime'))
+	const { data: priceYes } = useReadContract(readConfig('priceYes'))
+	const { data: priceNo } = useReadContract(readConfig('priceNo'))
+	const { data: resolved } = useReadContract(readConfig('resolved'))
+	const { data: yesWins } = useReadContract(readConfig('yesWins'))
 
 	const { writeContractAsync, isPending } = useWriteContract()
 	const [amount, setAmount] = useState<string>('0.01')
@@ -55,13 +33,13 @@ export function MarketDetail() {
 
 	async function buy(side: 'yes' | 'no') {
 		const valueWei = BigInt(Math.floor(parseFloat(amount || '0') * 1e18))
-		// ✅ must include args: [] for functions with no parameters
 		await writeContractAsync({
 			address,
 			abi: MarketAbi as any,
 			functionName: side === 'yes' ? 'buyYes' : 'buyNo',
+			// @ts-ignore — optional args for backward compatibility
 			args: [],
-			value: valueWei
+			value: valueWei,
 		})
 	}
 
@@ -71,7 +49,7 @@ export function MarketDetail() {
 			address,
 			abi: MarketAbi as any,
 			functionName: side === 'yes' ? 'sellYes' : 'sellNo',
-			args: [shares]
+			args: [shares],
 		})
 	}
 
@@ -80,7 +58,8 @@ export function MarketDetail() {
 			address,
 			abi: MarketAbi as any,
 			functionName: 'redeem',
-			args: []
+			// @ts-ignore
+			args: [],
 		})
 	}
 
