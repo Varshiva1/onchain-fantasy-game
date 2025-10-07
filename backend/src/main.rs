@@ -17,6 +17,9 @@ use futures_util::stream::TryStreamExt;
 mod models;
 mod database;
 mod blockchain;
+mod controllers;
+mod services;
+mod routes;
 
 use database::DatabaseManager;
 use blockchain::BlockchainManager;
@@ -37,6 +40,8 @@ async fn main() -> anyhow::Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
+    // Load env
+    let _ = dotenvy::dotenv();
     // Initialize database
     let db_url = std::env::var("DATABASE_URL")
         .unwrap_or_else(|_| "mongodb://localhost:27017".to_string());
@@ -67,10 +72,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/health", get(health))
         .route("/api/sports", get(list_sports))
         .route("/api/contests", get(list_contests))
-        .route("/api/tournaments", get(list_tournaments))
-        .route("/api/tournaments", post(create_tournament))
-        .route("/api/tournaments/:id", get(get_tournament))
-        .route("/api/tournaments/:id/join", post(join_tournament))
+        // MVC-mounted routes
+        .merge(routes::tournaments::router(state.clone()))
         .route("/api/tournaments/:id/participants", get(get_tournament_participants))
         .with_state(state)
         .layer(cors);
