@@ -3,9 +3,15 @@
 @layer base {
 	html, body, #root { height: 100%; }
 	body {
-		@apply bg-red-100 text-slate-900 antialiased;
+		@apply text-slate-900 antialiased;
+		background-image: url('https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1920&fit=crop');
+		background-size: cover;
+		background-position: center;
+		background-attachment: fixed;
+		background-repeat: no-repeat;
 	}
 	a { @apply transition-colors; }
 	input, select, button { @apply outline-none; }
 }
+.page-overlay { background-color: transparent; }
 

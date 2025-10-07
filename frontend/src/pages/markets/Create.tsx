@@ -84,18 +84,18 @@ export function CreateMarket() {
 		return (
 			<div className="w-full">
 				<div className="mb-8">
-					<h1 className="text-3xl font-semibold tracking-tight text-slate-900">Choose Your Sport</h1>
-					<p className="mt-1 text-sm text-slate-800">Select a sport to create or join tournaments.</p>
+					<h1 className="text-3xl font-semibold tracking-tight text-white drop-shadow">Choose Your Sport</h1>
+					<p className="mt-1 text-sm text-white/90">Select a sport to create or join tournaments.</p>
 				</div>
 				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2 h-[52vh]">
 					{sports.map((sport) => (
 						<button
 							key={sport.id}
 							onClick={() => setSelectedSport(sport.id)}
-							className="flex flex-col items-center justify-center gap-4 rounded-xl border border-slate-300 bg-white p-6 shadow-sm hover:border-slate-400 hover:shadow-md h-full"
+							className="flex flex-col items-center justify-center gap-4 rounded-xl border border-green-500 bg-green-400/90 p-8 shadow-md hover:bg-green-500/95 text-white h-full"
 						>
 							<span className="text-5xl">{sport.icon}</span>
-							<span className="font-semibold text-slate-900 text-xl">{sport.name}</span>
+							<span className="font-semibold text-white text-xl">{sport.name}</span>
 						</button>
 					))}
 				</div>

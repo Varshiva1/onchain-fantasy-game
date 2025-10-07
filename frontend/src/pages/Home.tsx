@@ -24,17 +24,17 @@ export function Home() {
   return (
     <div className="space-y-6">
       <section className="space-y-4">
-        <h1 className="text-2xl font-semibold">Onchain Fantasy</h1>
-        <h2 className="text-xl font-medium">Top Tournaments by Sport</h2>
+        <h1 className="text-2xl font-semibold text-white drop-shadow">Onchain Fantasy</h1>
+        {/* <h2 className="text-xl font-medium text-white drop-shadow">Top Tournaments by Sport</h2> */}
         {isLoading && <p className="text-gray-500">Loading tournaments…</p>}
         {error && <p className="text-red-600">Failed to load tournaments</p>}
         <div className="space-y-6">
           {Object.entries(topBySport).map(([sport, list]) => (
             <div key={sport} className="space-y-2">
-              <h3 className="text-lg font-semibold capitalize">{sport}</h3>
+              <h3 className="text-lg font-semibold capitalize text-white drop-shadow">{sport}</h3>
               <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {list.map((t) => (
-                  <li key={t.tournament_id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                  <li key={t.tournament_id} className="rounded-lg border border-amber-800 bg-amber-700/90 text-white p-4 shadow-md">
                     <div className="flex items-center justify-between">
                       <strong className="text-gray-900">{t.name}</strong>
                       <span className="text-xs text-gray-500 uppercase tracking-wide">{t.sport}</span>
