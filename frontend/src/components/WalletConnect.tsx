@@ -20,14 +20,14 @@ export function WalletConnect({ onAddressChange }: WalletConnectProps) {
   const connectWallet = async () => {
     setIsConnecting(true)
     try {
-      // Check if MetaMask is installed
-      if (typeof window.ethereum !== 'undefined') {
+      // Check if MetaMask (or any wallet) is available
+      if (window.ethereum && typeof window.ethereum.request === 'function') {
         // Request account access
         const accounts = await window.ethereum.request({
-          method: 'eth_requestAccounts'
+          method: 'eth_requestAccounts',
         })
-        
-        if (accounts.length > 0) {
+
+        if (accounts && accounts.length > 0) {
           const userAddress = accounts[0]
           setAddress(userAddress)
           localStorage.setItem('walletAddress', userAddress)
@@ -47,7 +47,7 @@ export function WalletConnect({ onAddressChange }: WalletConnectProps) {
   const disconnectWallet = () => {
     setAddress('')
     localStorage.removeItem('walletAddress')
-    onAddressChange('')
+    onAddressChange?.('')
   }
 
   return (
@@ -75,13 +75,4 @@ export function WalletConnect({ onAddressChange }: WalletConnectProps) {
       )}
     </div>
   )
-}
-
-// Extend Window interface for TypeScript
-declare global {
-  interface Window {
-    ethereum?: {
-      request: (args: { method: string }) => Promise<string[]>
-    }
-  }
 }
