@@ -74,58 +74,21 @@ router.get('/:id', (req, res) => {
 });
 
 // Create new tournament
-// router.post('/', async (req, res) => {
-//   try {
-//     const { name, sport, entry_fee, prize_pool, end_time } = req.body;
-    
-//     if (!name || !sport || !entry_fee || !prize_pool) {
-//       return res.status(400).json({ error: 'Missing required fields' });
-//     }
-    
-//     // In a real implementation, you would:
-//     // 1. Deploy a new Market contract
-//     // 2. Store the tournament in a database
-//     // 3. Return the contract address
-    
-//     const newTournament = {
-//       id: uuidv4(),
-//       name,
-//       sport,
-//       entry_fee,
-//       prize_pool,
-//       status: 'active',
-//       participants: 0,
-//       max_participants: 100,
-//       contract_address: `0x${Math.random().toString(16).substr(2, 40)}`, // Mock address
-//       created_at: new Date().toISOString()
-//     };
-    
-//     tournaments.push(newTournament);
-    
-//     res.status(201).json({ 
-//       tournament: newTournament,
-//       message: 'Tournament created successfully'
-//     });
-//   } catch (error) {
-//     console.error('Error creating tournament:', error);
-//     res.status(500).json({ error: 'Failed to create tournament' });
-//   }
-// });/
-
-// Create new tournament
 router.post('/', async (req, res) => {
   try {
-    const db = await getDb();
-    const col = db.collection('tournaments');
-
-    const { name, sport, entry_fee, prize_pool, end_time, creator_address } = req.body;
-
-    if (!name || !sport || !entry_fee || !prize_pool || !end_time || !creator_address) {
+    const { name, sport, entry_fee, prize_pool, end_time } = req.body;
+    
+    if (!name || !sport || !entry_fee || !prize_pool) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-
+    
+    // In a real implementation, you would:
+    // 1. Deploy a new Market contract
+    // 2. Store the tournament in a database
+    // 3. Return the contract address
+    
     const newTournament = {
-      tournament_id: uuidv4(),
+      id: uuidv4(),
       name,
       sport,
       entry_fee,
@@ -133,15 +96,12 @@ router.post('/', async (req, res) => {
       status: 'active',
       participants: 0,
       max_participants: 100,
-      contract_address: `0x${Math.random().toString(16).substr(2, 40)}` as string,
-      creator_address,
-      end_time: new Date(end_time),
-      created_at: new Date(),
-      updated_at: new Date(),
+      contract_address: `0x${Math.random().toString(16).substr(2, 40)}`, // Mock address
+      created_at: new Date().toISOString()
     };
-
-    await col.insertOne(newTournament);
-
+    
+    tournaments.push(newTournament);
+    
     res.status(201).json({ 
       tournament: newTournament,
       message: 'Tournament created successfully'
