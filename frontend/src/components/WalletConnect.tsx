@@ -9,7 +9,6 @@ export function WalletConnect({ onAddressChange }: WalletConnectProps) {
   const [isConnecting, setIsConnecting] = useState(false)
 
   useEffect(() => {
-    // Check if wallet is already connected
     const savedAddress = localStorage.getItem('walletAddress')
     if (savedAddress) {
       setAddress(savedAddress)
@@ -20,9 +19,7 @@ export function WalletConnect({ onAddressChange }: WalletConnectProps) {
   const connectWallet = async () => {
     setIsConnecting(true)
     try {
-      // Check if MetaMask (or any wallet) is available
       if (window.ethereum && typeof window.ethereum.request === 'function') {
-        // Request account access
         const accounts = await window.ethereum.request({
           method: 'eth_requestAccounts',
         })
@@ -51,15 +48,15 @@ export function WalletConnect({ onAddressChange }: WalletConnectProps) {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center">
       {address ? (
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-700 font-medium">
             {address.slice(0, 6)}...{address.slice(-4)}
           </span>
           <button
             onClick={disconnectWallet}
-            className="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+            className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 transition-colors text-sm font-medium"
           >
             Disconnect
           </button>
@@ -68,7 +65,7 @@ export function WalletConnect({ onAddressChange }: WalletConnectProps) {
         <button
           onClick={connectWallet}
           disabled={isConnecting}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          className="px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-800 font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 text-sm"
         >
           {isConnecting ? 'Connecting...' : 'Connect Wallet'}
         </button>
