@@ -16,7 +16,7 @@ connectDB();
 
 // Middleware
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'https://onchain-fantasy-game.vercel.app',
+  'https://onchain-fantasy-game.vercel.app',
   'http://localhost:3000'
 ];
 
