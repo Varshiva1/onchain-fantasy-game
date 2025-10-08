@@ -1,8 +1,14 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
-import { Tournament, TournamentStatus, Participant } from './Tournament';
+import mongoose, { Schema, Document, Model, Types } from 'mongoose'
+import { Tournament, TournamentStatus, Participant } from './Tournament'
 
-export interface TournamentDocument extends Tournament, Document {}
-export interface ParticipantDocument extends Participant, Document {}
+// ✅ Omit the _id field from Tournament and Participant to avoid conflict
+export interface TournamentDocument extends Omit<Tournament, '_id'>, Document {
+  _id: Types.ObjectId
+}
+
+export interface ParticipantDocument extends Omit<Participant, '_id'>, Document {
+  _id: Types.ObjectId
+}
 
 const TournamentSchema = new Schema<TournamentDocument>(
   {
@@ -60,7 +66,7 @@ const TournamentSchema = new Schema<TournamentDocument>(
       updatedAt: 'updated_at',
     },
   }
-);
+)
 
 const ParticipantSchema = new Schema<ParticipantDocument>(
   {
@@ -85,17 +91,17 @@ const ParticipantSchema = new Schema<ParticipantDocument>(
   {
     timestamps: {
       createdAt: 'joined_at',
-      updatedAt: false, // no need to track updates
+      updatedAt: false,
     },
   }
-);
+)
 
 export const TournamentModel: Model<TournamentDocument> = mongoose.model<TournamentDocument>(
   'Tournament',
   TournamentSchema
-);
+)
 
 export const ParticipantModel: Model<ParticipantDocument> = mongoose.model<ParticipantDocument>(
   'Participant',
   ParticipantSchema
-);
+)
