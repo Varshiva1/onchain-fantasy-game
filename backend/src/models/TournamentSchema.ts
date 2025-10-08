@@ -1,107 +1,110 @@
-import mongoose, { Schema, Document, Model, Types } from 'mongoose'
-import { Tournament, TournamentStatus, Participant } from './Tournament'
+import mongoose, { Schema, Document, Model } from 'mongoose';
+import {
+  Tournament,
+  TournamentStatus,
+  Participant
+} from './Tournament';
 
-// ✅ Omit the _id field from Tournament and Participant to avoid conflict
-export interface TournamentDocument extends Omit<Tournament, '_id'>, Document {
-  _id: Types.ObjectId
-}
+/**
+ * ✅ Use intersection instead of extends to avoid _id conflict
+ */
+export type TournamentDocument = Tournament & Document;
+export type ParticipantDocument = Participant & Document;
 
-export interface ParticipantDocument extends Omit<Participant, '_id'>, Document {
-  _id: Types.ObjectId
-}
-
-const TournamentSchema = new Schema<TournamentDocument>(
-  {
-    tournament_id: {
-      type: String,
-      required: true,
-      unique: true,
-      index: true,
-    },
-    name: {
-      type: String,
-      required: true,
-    },
-    sport: {
-      type: String,
-      required: true,
-    },
-    entry_fee: {
-      type: String,
-      required: true,
-    },
-    prize_pool: {
-      type: String,
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: Object.values(TournamentStatus),
-      default: TournamentStatus.Active,
-    },
-    participants: {
-      type: Number,
-      default: 0,
-    },
-    max_participants: {
-      type: Number,
-      default: 100,
-    },
-    contract_address: {
-      type: String,
-      required: true,
-    },
-    creator_address: {
-      type: String,
-      required: true,
-    },
-    end_time: {
-      type: Date,
-      required: true,
-    },
+/**
+ * 🏆 Tournament Schema Definition
+ */
+const TournamentSchema = new Schema<TournamentDocument>({
+  tournament_id: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true
   },
-  {
-    timestamps: {
-      createdAt: 'created_at',
-      updatedAt: 'updated_at',
-    },
-  }
-)
-
-const ParticipantSchema = new Schema<ParticipantDocument>(
-  {
-    tournament_id: {
-      type: String,
-      required: true,
-      index: true,
-    },
-    user_address: {
-      type: String,
-      required: true,
-    },
-    amount_paid: {
-      type: String,
-      required: true,
-    },
-    transaction_hash: {
-      type: String,
-      required: true,
-    },
+  name: {
+    type: String,
+    required: true
   },
-  {
-    timestamps: {
-      createdAt: 'joined_at',
-      updatedAt: false,
-    },
+  sport: {
+    type: String,
+    required: true
+  },
+  entry_fee: {
+    type: String,
+    required: true
+  },
+  prize_pool: {
+    type: String,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: Object.values(TournamentStatus),
+    default: TournamentStatus.Active
+  },
+  participants: {
+    type: Number,
+    default: 0
+  },
+  max_participants: {
+    type: Number,
+    default: 100
+  },
+  contract_address: {
+    type: String,
+    required: true
+  },
+  creator_address: {
+    type: String,
+    required: true
+  },
+  end_time: {
+    type: Date,
+    required: true
+  },
+  created_at: {
+    type: Date,
+    default: Date.now
+  },
+  updated_at: {
+    type: Date,
+    default: Date.now
   }
-)
+});
 
-export const TournamentModel: Model<TournamentDocument> = mongoose.model<TournamentDocument>(
-  'Tournament',
-  TournamentSchema
-)
+/**
+ * 👥 Participant Schema Definition
+ */
+const ParticipantSchema = new Schema<ParticipantDocument>({
+  tournament_id: {
+    type: String,
+    required: true
+  },
+  user_address: {
+    type: String,
+    required: true
+  },
+  amount_paid: {
+    type: String,
+    required: true
+  },
+  transaction_hash: {
+    type: String,
+    required: true
+  },
+  joined_at: {
+    type: Date,
+    default: Date.now
+  }
+});
 
-export const ParticipantModel: Model<ParticipantDocument> = mongoose.model<ParticipantDocument>(
-  'Participant',
-  ParticipantSchema
-)
+/**
+ * 🧩 Model Exports (with hot-reload safety)
+ */
+export const TournamentModel: Model<TournamentDocument> =
+  mongoose.models.Tournament ||
+  mongoose.model<TournamentDocument>('Tournament', TournamentSchema);
+
+export const ParticipantModel: Model<ParticipantDocument> =
+  mongoose.models.Participant ||
+  mongoose.model<ParticipantDocument>('Participant', ParticipantSchema);
