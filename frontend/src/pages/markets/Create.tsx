@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAccount, useWriteContract, useReadContract } from 'wagmi'
-import { FACTORY_ADDRESS, FactoryAbi, MarketAbi } from '../../lib/contracts'
+import { FACTORY_ADDRESS, FactoryAbi, MarketAbi, isFactoryConfigured } from '../../lib/contracts'
+import { api } from '../../services/api'
 
 const sports = [
 	{ id: 'cricket', name: 'Cricket', icon: '🏏' },
@@ -22,31 +23,65 @@ const mockTournaments = [
 ]
 
 export function CreateMarket() {
-	const { isConnected } = useAccount()
-	const { writeContractAsync, isPending } = useWriteContract()
-	const [selectedSport, setSelectedSport] = useState<string>('')
-	const [action, setAction] = useState<'create' | 'join' | null>(null)
-	const [question, setQuestion] = useState('')
-	const [endTime, setEndTime] = useState<string>('')
-	const [liquidity, setLiquidity] = useState<string>('')
+    const { isConnected, address } = useAccount()
+    const { writeContractAsync, isPending } = useWriteContract()
+    const [selectedSport, setSelectedSport] = useState<string>('')
+    const [action, setAction] = useState<'create' | 'join' | null>(null)
+    const [question, setQuestion] = useState('')
+    const [endTime, setEndTime] = useState<string>('')
+    const [entryFee, setEntryFee] = useState<string>('0')
+    const [prizePool, setPrizePool] = useState<string>('0')
+    const [status, setStatus] = useState<string>('Active')
+    const [participants, setParticipants] = useState<number>(0)
+    const [maxParticipants, setMaxParticipants] = useState<number>(100)
 	const [showJoinConfirm, setShowJoinConfirm] = useState(false)
 	const [selectedTournament, setSelectedTournament] = useState<any>(null)
 
-	async function submit(e: React.FormEvent) {
-		e.preventDefault()
-		if (!isConnected) return alert('Connect a wallet')
-		if (!endTime) return alert('Pick end time')
-		const endTs = Math.floor(new Date(endTime).getTime() / 1000)
-		const valueWei = BigInt(Math.floor(parseFloat(liquidity) * 1e18))
-		await writeContractAsync({
-			address: FACTORY_ADDRESS,
-			abi: FactoryAbi as any,
-			functionName: 'createMarket',
-			args: [question, BigInt(endTs)],
-			value: valueWei,
-		})
-		alert('Market transaction sent')
-	}
+    async function submit(e: React.FormEvent) {
+        e.preventDefault()
+        if (!isConnected || !address) return alert('Connect a wallet')
+        if (!endTime) return alert('Pick end time')
+        if (!question) return alert('Enter tournament name')
+
+        const endTs = Math.floor(new Date(endTime).getTime() / 1000)
+        const valueWei = BigInt(Math.floor(parseFloat(entryFee || '0') * 1e18))
+
+        try {
+            let txHash: string | undefined
+            // 1) Trigger blockchain tx via factory (deploy market) when configured
+            if (isFactoryConfigured) {
+                txHash = await writeContractAsync({
+                    address: FACTORY_ADDRESS,
+                    abi: FactoryAbi as any,
+                    functionName: 'createMarket',
+                    args: [question, BigInt(endTs)],
+                    value: valueWei,
+                }) as unknown as string
+            } else {
+                console.warn('Factory not configured; skipping onchain tx and saving to DB only')
+                txHash = '0xmock'
+            }
+
+            // 2) Persist in backend DB
+            const res = await api.createTournament({
+                name: question,
+                sport: selectedSport,
+                entry_fee: entryFee,
+                prize_pool: prizePool,
+                end_time: new Date(endTime).toISOString(),
+                creator_address: address,
+                status,
+                participants,
+                max_participants: maxParticipants,
+            })
+
+            alert('Tournament created. ' + (isFactoryConfigured ? `Tx sent: ${txHash}` : 'Saved to database (no factory set).'))
+            if (!res?.success) console.warn('DB save returned', res)
+        } catch (err) {
+            console.error('Create failed', err)
+            alert('Transaction rejected or failed. See console for details.')
+        }
+    }
 
 	async function joinTournament(tournament: any) {
 		if (!isConnected) return alert('Connect a wallet')
@@ -109,28 +144,28 @@ export function CreateMarket() {
 			<div className="w-full">
 				<div className="mb-8">
 					<button onClick={() => setSelectedSport('')} className="mb-4 text-sm text-slate-600 hover:text-slate-900">← Back to Sports</button>
-					<h1 className="text-3xl font-semibold tracking-tight text-slate-900">{sport?.name} Tournaments</h1>
-					<p className="mt-1 text-sm text-slate-800">Choose what you want to do with {sport?.name}.</p>
+                    <h1 className="text-3xl font-semibold tracking-tight text-white">{sport?.name} Tournaments</h1>
+                    <p className="mt-1 text-sm text-white">Choose what you want to do with {sport?.name}.</p>
 				</div>
 				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2 h-[52vh]">
 					<button
 						onClick={() => setAction('create')}
-						className="flex flex-col items-center justify-center gap-6 rounded-xl border border-slate-300 bg-white p-8 shadow-sm hover:border-slate-400 hover:shadow-md h-full"
+                        className="flex flex-col items-center justify-center gap-6 rounded-xl border border-white/50 bg-white/10 p-8 shadow-sm hover:border-white/70 hover:bg-white/20 h-full text-white"
 					>
 						<div className="text-6xl">🏆</div>
-						<div className="text-center">
-							<h3 className="text-2xl font-semibold text-slate-900">Create Tournament</h3>
-							<p className="text-base text-slate-600 mt-2">Start a new fantasy tournament</p>
+                        <div className="text-center">
+                            <h3 className="text-2xl font-semibold text-white">Create Tournament</h3>
+                            <p className="text-base text-white mt-2">Start a new fantasy tournament</p>
 						</div>
 					</button>
 					<button
 						onClick={() => setAction('join')}
-						className="flex flex-col items-center justify-center gap-6 rounded-xl border border-slate-300 bg-white p-8 shadow-sm hover:border-slate-400 hover:shadow-md h-full"
+                        className="flex flex-col items-center justify-center gap-6 rounded-xl border border-white/50 bg-white/10 p-8 shadow-sm hover:border-white/70 hover:bg-white/20 h-full text-white"
 					>
 						<div className="text-6xl">👥</div>
-						<div className="text-center">
-							<h3 className="text-2xl font-semibold text-slate-900">Join Tournament</h3>
-							<p className="text-base text-slate-600 mt-2">Participate in existing tournaments</p>
+                        <div className="text-center">
+                            <h3 className="text-2xl font-semibold text-white">Join Tournament</h3>
+                            <p className="text-base text-white mt-2">Participate in existing tournaments</p>
 						</div>
 					</button>
 				</div>
@@ -141,32 +176,53 @@ export function CreateMarket() {
 	return (
 		<>
 		<div className="w-full">
-			<div className="mb-8">
-				<button onClick={() => setAction(null)} className="mb-4 text-sm text-slate-600 hover:text-slate-900">← Back to Actions</button>
-				<h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+            <div className="mb-8">
+                <button onClick={() => setAction(null)} className="mb-4 text-sm text-white hover:text-white/80">← Back to Actions</button>
+                <h1 className="text-3xl font-semibold tracking-tight text-white">
 					{action === 'create' ? 'Create' : 'Join'} {sports.find(s => s.id === selectedSport)?.name} Tournament
 				</h1>
-				<p className="mt-1 text-sm text-slate-800">
+                <p className="mt-1 text-sm text-white">
 					{action === 'create' ? 'Define the tournament details and rules.' : 'Find and join existing tournaments.'}
 				</p>
 			</div>
 			{action === 'create' ? (
-				<form onSubmit={submit} className="grid w-full gap-6 sm:grid-cols-2 lg:grid-cols-3">
-					<label className="grid gap-1 text-sm">
-						<span className="font-medium text-slate-900">Tournament Name</span>
+                <form onSubmit={submit} className="grid w-full gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <label className="grid gap-1 text-sm">
+                        <span className="font-medium text-white">Tournament Name</span>
 						<input className="rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-slate-600" value={question} onChange={(e) => setQuestion(e.target.value)} required />
 					</label>
 					<label className="grid gap-1 text-sm">
-						<span className="font-medium text-slate-900">End time</span>
+                        <span className="font-medium text-white">End time</span>
 						<input type="datetime-local" className="rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-slate-600" value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
 					</label>
 					<label className="grid gap-1 text-sm">
-						<span className="font-medium text-slate-900">Entry Fee (ETH)</span>
-						<input type="number" min="0" step="0.001" className="rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-slate-600" value={liquidity} onChange={(e) => setLiquidity(e.target.value)} />
+                        <span className="font-medium text-white">Entry Fee (ETH)</span>
+                        <input type="number" min="0" step="0.001" className="rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-slate-600" value={entryFee} onChange={(e) => setEntryFee(e.target.value)} />
 					</label>
-					<div className="col-span-full mt-2 flex items-center gap-3">
-						<button type="submit" className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-black" disabled={isPending}>Create Tournament</button>
-						<span className="text-xs text-slate-700/90">You'll confirm in your wallet.</span>
+                    <label className="grid gap-1 text-sm">
+                        <span className="font-medium text-white">Prize Pool (ETH)</span>
+                        <input type="number" min="0" step="0.001" className="rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-slate-600" value={prizePool} onChange={(e) => setPrizePool(e.target.value)} />
+                    </label>
+                    <label className="grid gap-1 text-sm">
+                        <span className="font-medium text-white">Status</span>
+                        <select className="rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-slate-600" value={status} onChange={(e) => setStatus(e.target.value)}>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </label>
+                    <label className="grid gap-1 text-sm">
+                        <span className="font-medium text-white">Participants</span>
+                        <input type="number" min="0" className="rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-slate-600" value={participants} onChange={(e) => setParticipants(parseInt(e.target.value || '0'))} />
+                    </label>
+                    <label className="grid gap-1 text-sm">
+                        <span className="font-medium text-white">Max Participants</span>
+                        <input type="number" min="2" className="rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-slate-600" value={maxParticipants} onChange={(e) => setMaxParticipants(parseInt(e.target.value || '100'))} />
+                    </label>
+                    <div className="col-span-full mt-2 flex items-center gap-3">
+                        <button type="submit" className="inline-flex items-center justify-center rounded-full bg-white/20 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-white/30" disabled={isPending}>Create Tournament</button>
+                        <span className="text-xs text-white">You'll confirm in your wallet.</span>
 					</div>
 				</form>
 			) : (

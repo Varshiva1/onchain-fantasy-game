@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { api, type Tournament } from '../services/api'
 
 export function Home() {
-  const { data, isLoading, error } = useQuery<{ tournaments: Tournament[] }>({
+  const { data, isLoading, error } = useQuery<{ success: boolean; tournaments: Tournament[] }>({
     queryKey: ['tournaments', 'all'],
     queryFn: () => api.listTournaments(),
   })
@@ -28,6 +28,12 @@ export function Home() {
         {/* <h2 className="text-xl font-medium text-white drop-shadow">Top Tournaments by Sport</h2> */}
         {isLoading && <p className="text-gray-500">Loading tournaments…</p>}
         {error && <p className="text-red-600">Failed to load tournaments</p>}
+        {data && data.tournaments && data.tournaments.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-gray-500 mb-4">No tournaments available yet.</p>
+            <p className="text-sm text-gray-400">Create the first tournament to get started!</p>
+          </div>
+        )}
         <div className="space-y-6">
           {Object.entries(topBySport).map(([sport, list]) => (
             <div key={sport} className="space-y-2">
@@ -44,6 +50,9 @@ export function Home() {
                     </div>
                     <div className="text-sm text-gray-700">
                       Prize Pool: <span className="font-medium">{t.prize_pool} ETH</span>
+                    </div>
+                    <div className="text-xs text-gray-600 mt-1">
+                      {t.participants}/{t.max_participants} participants
                     </div>
                   </li>
                 ))}

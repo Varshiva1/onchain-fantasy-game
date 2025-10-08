@@ -1,57 +1,87 @@
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
-import { useEffect, useRef, useState } from 'react'
+import { useState, useEffect } from 'react'
 
-export function WalletConnect() {
-	const { isConnected, address } = useAccount()
-	const { connectors, connect, isPending } = useConnect()
-	const { disconnect } = useDisconnect()
-	const [open, setOpen] = useState(false)
-	const pop = useRef<HTMLDivElement | null>(null)
-
-	useEffect(() => {
-		function onDoc(e: MouseEvent) {
-			if (!pop.current) return
-			if (!pop.current.contains(e.target as Node)) setOpen(false)
-		}
-		document.addEventListener('click', onDoc)
-		return () => document.removeEventListener('click', onDoc)
-	}, [])
-
-	if (!isConnected) {
-		return (
-			<div className="relative" ref={pop}>
-				<button onClick={() => setOpen((v) => !v)} className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-black">
-					Connect
-				</button>
-				{open && (
-					<div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-md border border-slate-200 bg-white text-slate-900 shadow-lg">
-						<ul className="divide-y divide-slate-200">
-							{connectors.map((c) => (
-								<li key={c.uid}>
-									<button
-										className="block w-full px-4 py-2 text-left text-sm hover:bg-slate-50"
-										onClick={() => {
-											connect({ connector: c })
-											setOpen(false)
-										}}
-										disabled={isPending}
-									>
-										{c.name}
-									</button>
-								</li>
-							))}
-						</ul>
-					</div>
-				)}
-			</div>
-		)
-	}
-
-	return (
-		<div className="flex items-center gap-2">
-			<span className="font-mono text-sm text-slate-700">{address?.slice(0, 6)}…{address?.slice(-4)}</span>
-			<button onClick={() => disconnect()} className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-black">Disconnect</button>
-		</div>
-	)
+interface WalletConnectProps {
+  onAddressChange?: (address: string) => void
 }
 
+export function WalletConnect({ onAddressChange }: WalletConnectProps) {
+  const [address, setAddress] = useState<string>('')
+  const [isConnecting, setIsConnecting] = useState(false)
+
+  useEffect(() => {
+    // Check if wallet is already connected
+    const savedAddress = localStorage.getItem('walletAddress')
+    if (savedAddress) {
+      setAddress(savedAddress)
+      onAddressChange?.(savedAddress)
+    }
+  }, [onAddressChange])
+
+  const connectWallet = async () => {
+    setIsConnecting(true)
+    try {
+      // Check if MetaMask is installed
+      if (typeof window.ethereum !== 'undefined') {
+        // Request account access
+        const accounts = await window.ethereum.request({
+          method: 'eth_requestAccounts'
+        })
+        
+        if (accounts.length > 0) {
+          const userAddress = accounts[0]
+          setAddress(userAddress)
+          localStorage.setItem('walletAddress', userAddress)
+          onAddressChange?.(userAddress)
+        }
+      } else {
+        alert('MetaMask is not installed. Please install MetaMask to continue.')
+      }
+    } catch (error) {
+      console.error('Error connecting wallet:', error)
+      alert('Failed to connect wallet. Please try again.')
+    } finally {
+      setIsConnecting(false)
+    }
+  }
+
+  const disconnectWallet = () => {
+    setAddress('')
+    localStorage.removeItem('walletAddress')
+    onAddressChange('')
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      {address ? (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">
+            {address.slice(0, 6)}...{address.slice(-4)}
+          </span>
+          <button
+            onClick={disconnectWallet}
+            className="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Disconnect
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={connectWallet}
+          disabled={isConnecting}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+        >
+          {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+        </button>
+      )}
+    </div>
+  )
+}
+
+// Extend Window interface for TypeScript
+declare global {
+  interface Window {
+    ethereum?: {
+      request: (args: { method: string }) => Promise<string[]>
+    }
+  }
+}

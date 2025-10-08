@@ -1,4 +1,4 @@
-const BASE_URL = (import.meta as any).env.VITE_BACKEND_URL || 'http://localhost:8000'
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
 
 export type Contest = {
   id: string
@@ -58,8 +58,12 @@ export const api = {
   
   async listTournaments(sport?: string) {
     const url = sport ? `${BASE_URL}/api/tournaments?sport=${encodeURIComponent(sport)}` : `${BASE_URL}/api/tournaments`
+    console.log('Fetching tournaments from:', url)
     const res = await fetch(url)
-    return res.json() as Promise<{ tournaments: Tournament[] }>
+    console.log('Tournaments response status:', res.status)
+    const data = await res.json() as Promise<{ success: boolean; tournaments: Tournament[] }>
+    console.log('Tournaments data:', data)
+    return data
   },
   
   async getTournament(id: string) {
@@ -68,6 +72,9 @@ export const api = {
   },
   
   async createTournament(data: CreateTournamentRequest) {
+    console.log('Creating tournament with data:', data)
+    console.log('Backend URL:', BASE_URL)
+    
     const res = await fetch(`${BASE_URL}/api/tournaments`, {
       method: 'POST',
       headers: {
@@ -75,7 +82,21 @@ export const api = {
       },
       body: JSON.stringify(data),
     })
-    return res.json() as Promise<{ success: boolean; tournament?: Tournament; message?: string; error?: string }>
+    
+    console.log('Response status:', res.status)
+    const result = await res.json()
+    console.log('Response data:', result)
+    
+    return result as Promise<{ 
+      success: boolean; 
+      tournament?: Tournament; 
+      message?: string; 
+      error?: string;
+      blockchain?: {
+        contract_address: string;
+        transaction_hash: string;
+      }
+    }>
   },
   
   async joinTournament(id: string, data: JoinTournamentRequest) {
