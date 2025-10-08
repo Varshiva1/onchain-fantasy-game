@@ -2,4 +2,6 @@
 target
 **/*.log
 
-
+# dependencies
+/node_modules
+#node module
